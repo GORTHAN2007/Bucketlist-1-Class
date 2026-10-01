@@ -1,7 +1,9 @@
 const fs = require('fs/promises');
 const express = require('express');
 const app = express();
+app.use(express.json());
 const path = require('path');
+const { throwDeprecation } = require('process');
 const filePath = path.join(__dirname, 'db.json');
 
 const cache = {};
@@ -15,6 +17,20 @@ async function readData() {
         throw err;
     }
 }
+
+async function writeData(data) {
+    try{
+        await fs.writeFile(filePath, JSON.stringify(data,null,2), "utf-8");
+    }catch(err){
+        console.log(err);
+    };  
+};
+
+function clearCache() {
+    for (const key in cache) {
+        delete cache[key];
+    };
+};
 
 app.get("/products", async (req, res) => {
     try {
@@ -53,6 +69,26 @@ app.get("/products/:id", async (req, res) => {
     }
 });
 
+app.post("/products", async (req,res)=> {
+    try{
+        const {name,price} = req.body;
+        const data = await readData();
+        const newData = {
+            id: data.length + 1,
+            name,
+            price: Number(price)
+        };
+        data.push(newData);
+        await writeData(data);
+        clearCache();
+
+        return res.status(201).json(newData);
+
+    }catch(err){
+        return res.status(500).json({error: "Failed to create a new product"});
+
+    };
+});
 
 
 app.listen(3000, ()=>{
