@@ -90,7 +90,7 @@ app.post("/products", async (req,res)=> {
     };
 });
 
-app.post("/products/:id", async (req,res)=>{
+app.put("/products/:id", async (req,res)=>{
     try{
         const productId = Number(req.params.id);
         const {name,price} = req.body;
@@ -116,6 +116,32 @@ app.post("/products/:id", async (req,res)=>{
     }catch(err){
         return res.status(500).json({error : "Failed to update product"});
     };
+});
+
+app.patch("/products/:id", async (req, res) => {
+    try {
+        const productId = Number(req.params.id);
+        const { name, price } = req.body;
+
+        const data = await readData();
+        const index = data.findIndex(p => p.id === productId);
+        if (index === -1) {
+            return res.status(404).json({ error: "Product not found" });
+        };
+        if(name !== undefined){
+            data[index].name = name;
+        };
+        if(price !== undefined){
+            data[index].price = Number(price);
+        };
+
+        
+        await writeData(data);
+        clearCache();
+        return res.json(data[index]);
+    } catch (err) {
+        return res.status(500).json({ error: "Failed to update product" });
+    }
 });
 
 app.listen(3000, ()=>{
