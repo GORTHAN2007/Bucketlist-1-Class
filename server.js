@@ -90,6 +90,33 @@ app.post("/products", async (req,res)=> {
     };
 });
 
+app.post("/products/:id", async (req,res)=>{
+    try{
+        const productId = Number(req.params.id);
+        const {name,price} = req.body;
+
+        if(!name || price === undefined){
+            return res.status(400).json({error: "Name and price required. Please provide them."});
+        };
+        
+        const data = await readData();
+        const idx = data.findIndex((p)=> p.id === productId);
+        if(idx===-1){
+            return res.status(404).json({error : "Product not Found!"});
+        };
+        data[idx] = {
+            id : productId,
+            name,
+            price: Number(price)
+        };
+        await writeData(data);
+        clearCache();
+        
+        return res.json(data[idx]);
+    }catch(err){
+        return res.status(500).json({error : "Failed to update product"});
+    };
+});
 
 app.listen(3000, ()=>{
     console.log("Server running on port 3000");
