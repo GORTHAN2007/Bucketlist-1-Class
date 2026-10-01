@@ -135,7 +135,7 @@ app.patch("/products/:id", async (req, res) => {
             data[index].price = Number(price);
         };
 
-        
+
         await writeData(data);
         clearCache();
         return res.json(data[index]);
@@ -143,6 +143,26 @@ app.patch("/products/:id", async (req, res) => {
         return res.status(500).json({ error: "Failed to update product" });
     }
 });
+
+app.delete("/products/:id", async (req, res) => {
+    try {
+        const productId = Number(req.params.id);
+        const data = await readData();
+        const index = data.findIndex(p => p.id === productId);
+
+        if (index === -1) {
+            return res.status(404).json({ error: "Product not found" });
+        };
+
+        const deletedProduct = data.splice(index, 1)[0];
+        await writeData(data);
+        clearCache();
+        return res.json({ message: "Product deleted successfully", product: deletedProduct });
+    } catch (err) {
+        return res.status(500).json({ error: "Failed to delete product" });
+    }
+});
+
 
 app.listen(3000, ()=>{
     console.log("Server running on port 3000");
