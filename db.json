@@ -11,17 +11,12 @@
   },
   {
     "id": 3,
-    "name": "Monitor",
-    "price": 199
+    "name": "RGB Mechanical Keyboard",
+    "price": 109.99
   },
   {
     "id": 4,
     "name": "Mouse",
     "price": 19
-  },
-  {
-    "id": 5,
-    "name": "Mechanical Keyboard",
-    "price": 89.99
   }
 ]
